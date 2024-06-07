@@ -1,9 +1,9 @@
 import express from "express";
-import authRoutes from "./routes/auth.routes";
+import authRoutes from "./routes/auth.route";
 import dotenv from "dotenv";
 import connectToMongo from "./db/connectToMongo";
 import cookieParser from "cookie-parser";
-import userRoutes from "./routes/user.routes";
+import userRoutes from "./routes/user.route";
 import postroutes from "./routes/post.route";
 import { v2 as cloudinary } from "cloudinary";
 
