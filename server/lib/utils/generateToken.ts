@@ -8,7 +8,7 @@ export const generateTokenAndSetCookies = (userId: string, res: RESPONSE) => {
 
 	res.cookie("jwt", token, {
 		httpOnly: true, // prevent XSS Attacks which prevents javascript code and allows only http
-		maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days\
+		maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
 		sameSite: "strict",
 		secure: process.env.NODE_ENV !== "development",
 	});

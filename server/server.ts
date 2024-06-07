@@ -4,8 +4,11 @@ import dotenv from "dotenv";
 import connectToMongo from "./db/connectToMongo";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/user.routes";
+import postroutes from "./routes/post.route";
 import { v2 as cloudinary } from "cloudinary";
+
 dotenv.config();
+
 cloudinary.config({
 	api_key: process.env.CLOUDINARY_API_KEY,
 	api_secret: process.env.CLOUDINARY_API_SECRET,
@@ -20,6 +23,8 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postroutes);
+
 app.listen(PORT, () => {
 	console.log(`Listening on port ${PORT}`);
 	connectToMongo();
