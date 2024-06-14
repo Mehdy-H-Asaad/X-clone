@@ -5,29 +5,7 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-
-type CommentProps = {
-	_id: string;
-	text: string;
-	user: {
-		username: string;
-		profileImg: string;
-		fullName: string;
-	};
-};
-
-type PostProps = {
-	_id: string;
-	text: string;
-	img?: string;
-	user: {
-		username: string;
-		profileImg: string;
-		fullName: string;
-	};
-	comments: CommentProps[];
-	likes: string[];
-};
+import { CommentProps, PostProps } from "../../types/Types";
 
 const Post = ({ post }: { post: PostProps }) => {
 	const [comment, setComment] = useState("");
