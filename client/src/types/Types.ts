@@ -28,3 +28,8 @@ export type UserProps = {
 	profileImg: string;
 	fullname: string;
 };
+
+export type CreatePostProps = {
+	img?: string | ArrayBuffer | null;
+	text: string;
+};
