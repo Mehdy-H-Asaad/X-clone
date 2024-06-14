@@ -5,16 +5,24 @@ import XSvg from "../../../components/svgs/X";
 
 import { MdPassword } from "react-icons/md";
 import { FaUser } from "react-icons/fa";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+type loginProps = {
+	username: string;
+	password: string;
+};
 
 const LoginPage = () => {
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<loginProps>({
 		username: "",
 		password: "",
 	});
 
+	const queryClient = useQueryClient();
+
 	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		console.log(formData);
+		mutate(formData);
 	};
 
 	const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +31,29 @@ const LoginPage = () => {
 		setFormData({ ...formData, [name]: value });
 	};
 
-	const isError = false;
+	const { mutate, isPending, isError, error } = useMutation({
+		mutationFn: async (loginForm: loginProps) => {
+			const { username, password } = loginForm;
+			try {
+				const res = await fetch("/api/auth/login", {
+					method: "POST",
+					headers: {
+						"Content-type": "application/json",
+					},
+					body: JSON.stringify({ username, password }),
+				});
+
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error || "Something went wrong");
+				return data;
+			} catch (error: any) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["authorizedUser"] });
+		},
+	});
 
 	return (
 		<div className="max-w-screen-xl mx-auto flex h-screen px-10">
@@ -63,9 +93,9 @@ const LoginPage = () => {
 					</div>
 
 					<button className="btn rounded-full btn-primary text-white">
-						Login in
+						{isPending ? "loading... " : "Login"}
 					</button>
-					{isError && <p className="text-red-500">Something went wrong</p>}
+					{isError && <p className="text-red-500">{error.message}</p>}
 				</form>
 				<div className="flex flex-col lg:w-2/3 gap-2 mt-4">
 					<p className="text-white text-lg">Don't have an account?</p>
