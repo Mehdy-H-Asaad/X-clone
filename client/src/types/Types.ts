@@ -13,10 +13,18 @@ export type PostProps = {
 	text: string;
 	img?: string;
 	user: {
+		_id: any;
 		username: string;
 		profileImg: string;
 		fullName: string;
 	};
 	comments: CommentProps[];
 	likes: string[];
+};
+
+export type UserProps = {
+	_id: string;
+	username: string;
+	profileImg: string;
+	fullname: string;
 };

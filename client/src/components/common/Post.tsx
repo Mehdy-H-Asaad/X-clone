@@ -5,20 +5,51 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import { CommentProps, PostProps } from "../../types/Types";
+import { CommentProps, PostProps, UserProps } from "../../types/Types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Post = ({ post }: { post: PostProps }) => {
-	const [comment, setComment] = useState("");
+	const { data: AuthorizedUser } = useQuery<UserProps>({
+		queryKey: ["authorizedUser"],
+	});
+
+	const queryClient = useQueryClient();
+
+	const { mutate: deletePost, isPending } = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`/api/posts/${post._id}`, {
+					method: "DELETE",
+				});
+
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error || "Something went wrong");
+				return data;
+			} catch (error: any) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: () => {
+			toast.success("Post deleted successfully");
+			queryClient.invalidateQueries({ queryKey: ["posts"] });
+		},
+	});
+
+	const [comment, setComment] = useState<string>("");
 	const postOwner = post.user;
 	const isLiked = false;
 
-	const isMyPost = true;
+	const isMyPost = AuthorizedUser?._id === post.user._id;
 
 	const formattedDate = "1h";
 
 	const isCommenting = false;
 
-	const handleDeletePost = () => {};
+	const handleDeletePost = () => {
+		deletePost();
+	};
 
 	const handlePostComment = (e: FormEvent) => {
 		e.preventDefault();
@@ -59,8 +90,13 @@ const Post = ({ post }: { post: PostProps }) => {
 							<span>{formattedDate}</span>
 						</span>
 						{isMyPost && (
-							<span className="flex justify-end ml-auto cursor-pointer duration-200 hover:text-red-500">
-								<FaTrash />
+							<span
+								className="flex justify-end ml-auto cursor-pointer duration-200 hover:text-red-500"
+								onClick={handleDeletePost}
+							>
+								{!isPending && <FaTrash />}
+
+								{isPending && <LoadingSpinner size="lg" />}
 							</span>
 						)}
 					</div>
