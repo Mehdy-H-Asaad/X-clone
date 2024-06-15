@@ -10,14 +10,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 
-const Post = ({ post }: { post: PostProps }) => {
+const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 	const { data: AuthorizedUser } = useQuery<UserProps>({
 		queryKey: ["authorizedUser"],
 	});
 
 	const queryClient = useQueryClient();
 
-	const { mutate: deletePost, isPending } = useMutation({
+	const { mutate: deletePost, isPending: isDeleting } = useMutation({
 		mutationFn: async () => {
 			try {
 				const res = await fetch(`/api/posts/${post._id}`, {
@@ -39,7 +39,7 @@ const Post = ({ post }: { post: PostProps }) => {
 
 	const [comment, setComment] = useState<string>("");
 	const postOwner = post.user;
-	const isLiked = false;
+	const isLiked = post.likes.includes(AuthorizedUser?._id as string);
 
 	const isMyPost = AuthorizedUser?._id === post.user._id;
 
@@ -55,7 +55,10 @@ const Post = ({ post }: { post: PostProps }) => {
 		e.preventDefault();
 	};
 
-	const handleLikePost = () => {};
+	const handleLikePost = () => {
+		if (isLiking) return;
+		likePost();
+	};
 
 	const openCommentsModal = (postId: string) => {
 		const dialog = document.getElementById(
@@ -65,6 +68,40 @@ const Post = ({ post }: { post: PostProps }) => {
 			dialog.showModal();
 		}
 	};
+
+	const { mutate: likePost, isPending: isLiking } = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`/api/posts/like/${post._id}`, {
+					method: "POST",
+				});
+				const data = await res.json();
+
+				if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+				return data;
+			} catch (error: any) {
+				throw new Error(error);
+			}
+		},
+
+		onSuccess: updatedLikes => {
+			toast.success("Liked post");
+
+			// queryClient.invalidateQueries({ queryKey: ["posts"] }); NOT GOOD APPROACH !!!!
+
+			queryClient.setQueryData(
+				["posts", feedType],
+				(oldPostData: PostProps[]) => {
+					return oldPostData.map(currentPostData => {
+						if (currentPostData._id === post._id)
+							return { ...currentPostData, likes: updatedLikes };
+						return currentPostData;
+					});
+				}
+			);
+		},
+	});
 
 	return (
 		<>
@@ -94,9 +131,9 @@ const Post = ({ post }: { post: PostProps }) => {
 								className="flex justify-end ml-auto cursor-pointer duration-200 hover:text-red-500"
 								onClick={handleDeletePost}
 							>
-								{!isPending && <FaTrash />}
+								{!isDeleting && <FaTrash />}
 
-								{isPending && <LoadingSpinner size="lg" />}
+								{isDeleting && <LoadingSpinner size="lg" />}
 							</span>
 						)}
 					</div>
@@ -197,19 +234,20 @@ const Post = ({ post }: { post: PostProps }) => {
 								className="flex gap-1 items-center group cursor-pointer"
 								onClick={handleLikePost}
 							>
-								{!isLiked && (
+								{isLiking && <LoadingSpinner size="sm" />}
+								{!isLiked && !isLiking && (
 									<div className="cursor-pointer text-slate-500 group-hover:text-pink-500">
 										<FaRegHeart size={16} />
 									</div>
 								)}
-								{isLiked && (
+								{isLiked && !isLiking && (
 									<div className="cursor-pointer text-pink-500">
 										<FaRegHeart size={16} />
 									</div>
 								)}
 								<span
-									className={`text-sm text-slate-500 group-hover:text-pink-500 ${
-										isLiked ? "text-pink-500" : ""
+									className={`text-sm group-hover:text-pink-500 ${
+										isLiked ? "text-pink-500" : " text-slate-500"
 									}`}
 								>
 									{post.likes.length}

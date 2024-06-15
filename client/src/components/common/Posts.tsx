@@ -51,7 +51,7 @@ const Posts = ({ feedType }: { feedType: string }) => {
 			{!isLoading && !isRefetching && posts && (
 				<div>
 					{posts.map((post: PostProps) => (
-						<Post key={post._id} post={post} />
+						<Post key={post._id} post={post} feedType={feedType} />
 					))}
 				</div>
 			)}
