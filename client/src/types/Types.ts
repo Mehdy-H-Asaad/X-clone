@@ -20,6 +20,7 @@ export type PostProps = {
 	};
 	comments: CommentProps[];
 	likes: string[];
+	createdAt: Date;
 };
 
 export type UserProps = {

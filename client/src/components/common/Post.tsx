@@ -9,6 +9,7 @@ import { CommentProps, PostProps, UserProps } from "../../types/Types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
+import { formatPostDate } from "../../utils/lib/date";
 
 const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 	const { data: AuthorizedUser } = useQuery<UserProps>({
@@ -43,7 +44,7 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 
 	const isMyPost = AuthorizedUser?._id === post.user._id;
 
-	const formattedDate = "1h";
+	const formattedDate = formatPostDate(post.createdAt);
 
 	// const isCommenting = false;
 
