@@ -45,7 +45,7 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 
 	const formattedDate = "1h";
 
-	const isCommenting = false;
+	// const isCommenting = false;
 
 	const handleDeletePost = () => {
 		deletePost();
@@ -53,6 +53,8 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 
 	const handlePostComment = (e: FormEvent) => {
 		e.preventDefault();
+		if (isCommenting) return;
+		commentOnPost();
 	};
 
 	const handleLikePost = () => {
@@ -87,7 +89,7 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 
 		onSuccess: updatedLikes => {
 			toast.success("Liked post");
-
+			setComment("");
 			// queryClient.invalidateQueries({ queryKey: ["posts"] }); NOT GOOD APPROACH !!!!
 
 			queryClient.setQueryData(
@@ -101,6 +103,39 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 				}
 			);
 		},
+	});
+
+	const { mutate: commentOnPost, isPending: isCommenting } = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`/api/posts/comment/${post._id}`, {
+					method: "POST",
+					headers: {
+						"Content-type": "application/json",
+					},
+					body: JSON.stringify({ text: comment }),
+				});
+
+				const data = await res.json();
+				if (!res.ok) throw new Error(data.error || "Something went wrong");
+				return data;
+			} catch (error: any) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: (updatedComments: CommentProps[]) => {
+			queryClient.setQueryData(
+				["posts", feedType],
+				(oldPostData: CommentProps[]) => {
+					return oldPostData.map((currentPostData: CommentProps) => {
+						if (currentPostData._id === post._id)
+							return { ...currentPostData, comments: updatedComments };
+						return currentPostData;
+					});
+				}
+			);
+		},
+		onError: (error: string) => toast.error(error),
 	});
 
 	return (
@@ -156,8 +191,9 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 								<div className="text-slate-500 group-hover:text-sky-400">
 									<FaRegComment size={16} />
 								</div>
+
 								<span className="text-sm text-slate-500 group-hover:text-sky-400">
-									{post.comments.length}
+									{post?.comments.length}
 								</span>
 							</div>
 							{/* We're using Modal Component from DaisyUI */}
@@ -188,7 +224,7 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 												<div className="flex flex-col">
 													<div className="flex items-center gap-1">
 														<span className="font-bold">
-															{comment.user.fullName}
+															{comment.user.fullname}
 														</span>
 														<span className="text-gray-700 text-sm">
 															@{comment.user.username}

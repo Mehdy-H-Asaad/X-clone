@@ -3,8 +3,8 @@ export type CommentProps = {
 	text: string;
 	user: {
 		username: string;
-		profileImg: string;
-		fullName: string;
+		profileImg?: string;
+		fullname: string;
 	};
 };
 
