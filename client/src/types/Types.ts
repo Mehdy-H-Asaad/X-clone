@@ -34,3 +34,10 @@ export type CreatePostProps = {
 	img?: string | ArrayBuffer | null;
 	text: string;
 };
+
+export type NotificationsProps = {
+	_id: string;
+	sender: UserProps;
+	reciver: UserProps;
+	type: string;
+};
