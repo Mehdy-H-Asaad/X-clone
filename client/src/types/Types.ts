@@ -28,6 +28,7 @@ export type UserProps = {
 	username: string;
 	profileImg: string;
 	fullname: string;
+	bio: string;
 };
 
 export type CreatePostProps = {

@@ -93,6 +93,18 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 			setComment("");
 			// queryClient.invalidateQueries({ queryKey: ["posts"] }); NOT GOOD APPROACH !!!!
 
+			if (feedType == "likedPosts") {
+				queryClient.setQueryData(
+					["posts", "likedPosts"],
+					(oldLikedPosts: PostProps[]) => {
+						return oldLikedPosts?.filter(
+							likedPost => likedPost._id !== post._id
+						);
+					}
+				);
+				return;
+			}
+
 			queryClient.setQueryData(
 				["posts", feedType],
 				(oldPostData: PostProps[]) => {
