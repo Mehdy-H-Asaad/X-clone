@@ -5,40 +5,34 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import { CommentProps, PostProps, UserProps } from "../../types/Types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { CommentProps, PostProps } from "../../types/Types";
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/lib/date";
+import {
+	useCommentOnPost,
+	useDeletePost,
+	useLikePost,
+} from "../../utils/lib/React Query/QueriesAndMutations/PostQueries";
+import { useAuthUser } from "../../utils/lib/React Query/QueriesAndMutations/AuthQueries";
 
 const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
-	const { data: AuthorizedUser } = useQuery<UserProps>({
-		queryKey: ["authorizedUser"],
-	});
-
-	const queryClient = useQueryClient();
-
-	const { mutate: deletePost, isPending: isDeleting } = useMutation({
-		mutationFn: async () => {
-			try {
-				const res = await fetch(`/api/posts/${post._id}`, {
-					method: "DELETE",
-				});
-
-				const data = await res.json();
-				if (!res.ok) throw new Error(data.error || "Something went wrong");
-				return data;
-			} catch (error: any) {
-				throw new Error(error);
-			}
-		},
-		onSuccess: () => {
-			toast.success("Post deleted successfully");
-			queryClient.invalidateQueries({ queryKey: ["posts"] });
-		},
-	});
-
 	const [comment, setComment] = useState<string>("");
+
+	const { AuthorizedUser } = useAuthUser();
+
+	// DELETE POST
+	const { deletePost, isDeleting } = useDeletePost(post._id);
+
+	// LIKE POST
+	const { isLiking, likePost } = useLikePost(post._id, feedType);
+
+	// COMMENT ON POST
+	const { commentOnPost, isCommenting } = useCommentOnPost(
+		post._id,
+		feedType,
+		comment
+	);
+
 	const postOwner = post.user;
 	const isLiked = post.likes.includes(AuthorizedUser?._id as string);
 
@@ -46,16 +40,15 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 
 	const formattedDate = formatPostDate(post.createdAt);
 
-	// const isCommenting = false;
-
 	const handleDeletePost = () => {
 		deletePost();
 	};
 
-	const handlePostComment = (e: FormEvent) => {
+	const handlePostComment = async (e: FormEvent) => {
 		e.preventDefault();
 		if (isCommenting) return;
 		commentOnPost();
+		// setComment("");
 	};
 
 	const handleLikePost = () => {
@@ -71,85 +64,6 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 			dialog.showModal();
 		}
 	};
-
-	const { mutate: likePost, isPending: isLiking } = useMutation({
-		mutationFn: async () => {
-			try {
-				const res = await fetch(`/api/posts/like/${post._id}`, {
-					method: "POST",
-				});
-				const data = await res.json();
-
-				if (!res.ok) throw new Error(data.error || "Something went wrong");
-
-				return data;
-			} catch (error: any) {
-				throw new Error(error);
-			}
-		},
-
-		onSuccess: updatedLikes => {
-			toast.success("Liked post");
-			setComment("");
-			// queryClient.invalidateQueries({ queryKey: ["posts"] }); NOT GOOD APPROACH !!!!
-
-			if (feedType == "likedPosts") {
-				queryClient.setQueryData(
-					["posts", "likedPosts"],
-					(oldLikedPosts: PostProps[]) => {
-						return oldLikedPosts?.filter(
-							likedPost => likedPost._id !== post._id
-						);
-					}
-				);
-				return;
-			}
-
-			queryClient.setQueryData(
-				["posts", feedType],
-				(oldPostData: PostProps[]) => {
-					return oldPostData.map(currentPostData => {
-						if (currentPostData._id === post._id)
-							return { ...currentPostData, likes: updatedLikes };
-						return currentPostData;
-					});
-				}
-			);
-		},
-	});
-
-	const { mutate: commentOnPost, isPending: isCommenting } = useMutation({
-		mutationFn: async () => {
-			try {
-				const res = await fetch(`/api/posts/comment/${post._id}`, {
-					method: "POST",
-					headers: {
-						"Content-type": "application/json",
-					},
-					body: JSON.stringify({ text: comment }),
-				});
-
-				const data = await res.json();
-				if (!res.ok) throw new Error(data.error || "Something went wrong");
-				return data;
-			} catch (error: any) {
-				throw new Error(error);
-			}
-		},
-		onSuccess: (updatedComments: CommentProps[]) => {
-			queryClient.setQueryData(
-				["posts", feedType],
-				(oldPostData: CommentProps[]) => {
-					return oldPostData.map((currentPostData: CommentProps) => {
-						if (currentPostData._id === post._id)
-							return { ...currentPostData, comments: updatedComments };
-						return currentPostData;
-					});
-				}
-			);
-		},
-		onError: (error: string) => toast.error(error),
-	});
 
 	return (
 		<>

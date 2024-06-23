@@ -1,3 +1,15 @@
+export type formProps = {
+	email: string;
+	username: string;
+	fullname: string;
+	password: string;
+};
+
+export type loginProps = {
+	username: string;
+	password: string;
+};
+
 export type CommentProps = {
 	_id: string;
 	text: string;

@@ -9,7 +9,11 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
-import { useQuery } from "@tanstack/react-query";
+import {
+	useGetUserProfile,
+	useGetUserProfilePosts,
+} from "../../utils/lib/React Query/QueriesAndMutations/UserQueries";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState<string | null>(null);
@@ -23,26 +27,8 @@ const ProfilePage = () => {
 
 	const { username } = useParams<{ username: string }>();
 
-	const {
-		data: user,
-		isLoading,
-		isRefetching,
-		refetch,
-	} = useQuery({
-		queryKey: ["userProfile"],
-		queryFn: async () => {
-			try {
-				const res = await fetch(`/api/users/profile/${username}`);
-
-				const data = await res.json();
-				if (!res.ok) throw new Error(data.error || "Someting went wrong");
-
-				return data;
-			} catch (error: any) {
-				throw new Error(error);
-			}
-		},
-	});
+	const { isLoading, isRefetching, refetch, user } =
+		useGetUserProfile(username);
 
 	const handleImgChange = (e: ChangeEvent<HTMLInputElement>, state: string) => {
 		const files = e.target.files;
@@ -57,10 +43,14 @@ const ProfilePage = () => {
 		}
 	};
 
+	const { userPosts, refetchUserPosts, isRefetchingPosts, isPending } =
+		useGetUserProfilePosts(username);
+
 	useEffect(() => {
-		if (isRefetching) return;
+		if (isRefetching || isRefetchingPosts) return;
 		refetch();
-	}, [refetch, username]);
+		refetchUserPosts();
+	}, [refetch, username, refetchUserPosts]);
 
 	return (
 		<>
@@ -79,8 +69,13 @@ const ProfilePage = () => {
 								</Link>
 								<div className="flex flex-col">
 									<p className="font-bold text-lg">{user?.fullName}</p>
-									<span className="text-sm text-slate-500">
-										{user?.length} posts
+									<span className="text-sm text-slate-500 flex items-center gap-2">
+										{isPending || isRefetchingPosts ? (
+											<LoadingSpinner size="sm" />
+										) : (
+											userPosts?.length
+										)}{" "}
+										posts
 									</span>
 								</div>
 							</div>
@@ -229,7 +224,12 @@ const ProfilePage = () => {
 						</>
 					)}
 
-					<Posts username={username} feedType={feedType} userId={user?._id} />
+					<Posts
+						key={username}
+						username={username}
+						feedType={feedType}
+						userId={user?._id}
+					/>
 				</div>
 			</div>
 		</>

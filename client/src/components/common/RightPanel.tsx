@@ -1,25 +1,12 @@
 import { Link } from "react-router-dom";
 import RightPanelSkeleton from "../skeletons/RightPanelSkeletons";
-import { useQuery } from "@tanstack/react-query";
 import { UserProps } from "../../types/Types";
-import useFollow from "../../hooks/useFollow";
+import { useFollow } from "../../utils/lib/React Query/QueriesAndMutations/UserQueries";
 import LoadingSpinner from "./LoadingSpinner";
+import { useSuggestedUsers } from "../../utils/lib/React Query/QueriesAndMutations/UserQueries";
 
 const RightPanel = () => {
-	const { data: suggestedUsers, isLoading } = useQuery<UserProps[]>({
-		queryKey: ["suggestedUsers"],
-		queryFn: async () => {
-			try {
-				const res = await fetch("/api/users/suggested");
-
-				const data = await res.json();
-				if (!res.ok) throw new Error(data.error || "Something went wrong");
-				return data;
-			} catch (error: any) {
-				throw new Error(error);
-			}
-		},
-	});
+	const { isLoading, suggestedUsers } = useSuggestedUsers();
 
 	const { followUnFollow, isPending } = useFollow();
 

@@ -1,7 +1,7 @@
 import Post from "./Post";
 import PostSkeleton from "../skeletons/PostSkeleton";
-import { useQuery } from "@tanstack/react-query";
 import { PostProps } from "../../types/Types";
+import { useGetPosts } from "../../utils/lib/React Query/QueriesAndMutations/PostQueries";
 
 const Posts = ({
 	feedType,
@@ -28,26 +28,10 @@ const Posts = ({
 	};
 
 	const POSTS_ENDPOINT = getPostsEndPoint();
-	const {
-		data: posts,
-		isLoading,
-
-		isRefetching,
-	} = useQuery({
-		queryKey: ["posts", feedType],
-		queryFn: async () => {
-			try {
-				const res = await fetch(POSTS_ENDPOINT);
-
-				const data = await res.json();
-
-				if (!res.ok) throw new Error(data.error || "Something went wrong");
-				return data;
-			} catch (error: any) {
-				throw new Error(error);
-			}
-		},
-	});
+	const { posts, isLoading, isRefetching } = useGetPosts(
+		feedType,
+		POSTS_ENDPOINT
+	);
 
 	return (
 		<>

@@ -83,12 +83,12 @@ export const commentOnPost = async (req: REQUEST, res: RESPONSE) => {
 
 		await post.save();
 
-		const updatedPost = await Post.findById(postId).populate({
+		const populatedComments = await post.populate({
 			path: "comments.user",
 			select: "username fullname profileImg",
 		});
 
-		const updatedComments = updatedPost?.comments || [];
+		const updatedComments = populatedComments.comments;
 
 		return res.status(200).json(updatedComments);
 	} catch (error) {
@@ -148,10 +148,16 @@ export const likeAndUnLike = async (req: REQUEST, res: RESPONSE) => {
 
 export const getAllPosts = async (_req: REQUEST, res: RESPONSE) => {
 	try {
-		const posts = await Post.find().sort({ createdAt: -1 }).populate({
-			path: "user",
-			select: "-password",
-		});
+		const posts = await Post.find()
+			.sort({ createdAt: -1 })
+			.populate({
+				path: "user",
+				select: "-password",
+			})
+			.populate({
+				path: "comments.user",
+				select: "username fullname profileImg",
+			});
 
 		if (posts.length === 0) return res.status(200).json([]);
 
@@ -218,6 +224,10 @@ export const getUserPosts = async (req: REQUEST, res: RESPONSE) => {
 			.populate({
 				path: "user",
 				select: "-password",
+			})
+			.populate({
+				path: "comments.user",
+				select: "username profileImg fullname",
 			});
 
 		return res.status(200).json(userPosts);
