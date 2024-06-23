@@ -41,6 +41,12 @@ export type UserProps = {
 	profileImg: string;
 	fullname: string;
 	bio: string;
+	email: string;
+	followers: [];
+	following: string[];
+	coverImg: string;
+	link: string;
+	likedPosts: string[];
 };
 
 export type CreatePostProps = {
@@ -53,4 +59,19 @@ export type NotificationsProps = {
 	sender: UserProps;
 	reciver: UserProps;
 	type: string;
+};
+
+export type editProfileProps = {
+	fullname: string;
+	username: string;
+	email: string;
+	bio: string;
+	link: string;
+	newPassword: string;
+	currentPassword: string;
+};
+
+export type editImgProps = {
+	profileImg: string | null;
+	coverImg: string | null;
 };

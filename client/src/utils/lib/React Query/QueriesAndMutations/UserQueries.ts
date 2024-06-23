@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { UserProps } from "../../../../types/Types";
+import {
+	UserProps,
+	editImgProps,
+	editProfileProps,
+} from "../../../../types/Types";
 import toast from "react-hot-toast";
 import { QUERY_KEYS } from "../QueryKeys";
 
@@ -24,7 +28,7 @@ export const useSuggestedUsers = () => {
 export const useFollow = () => {
 	const queryClient = useQueryClient();
 	const { mutate: followUnFollow, isPending } = useMutation({
-		mutationFn: async (id: string) => {
+		mutationFn: async (id: string): Promise<any> => {
 			try {
 				const res = await fetch(`/api/users/follow/${id}`, {
 					method: "POST",
@@ -86,7 +90,7 @@ export const useGetUserProfilePosts = (username: string | undefined) => {
 		data: userPosts,
 		refetch: refetchUserPosts,
 		isRefetching: isRefetchingPosts,
-		isPending,
+		isPending: isGettingPosts,
 	} = useQuery({
 		queryKey: ["profilePosts"],
 		queryFn: async () => {
@@ -102,5 +106,40 @@ export const useGetUserProfilePosts = (username: string | undefined) => {
 		},
 	});
 
-	return { userPosts, refetchUserPosts, isPending, isRefetchingPosts };
+	return { userPosts, refetchUserPosts, isGettingPosts, isRefetchingPosts };
+};
+
+export const useUpdateProfile = () => {
+	const queryClient = useQueryClient();
+	const { mutateAsync: updateProfile, isPending: isUpdating } = useMutation({
+		mutationFn: async (formData: editProfileProps | editImgProps) => {
+			try {
+				const res = await fetch(`/api/users/update`, {
+					method: "POST",
+					headers: {
+						"Content-type": "application/json",
+					},
+					body: JSON.stringify(formData),
+				});
+
+				const data = await res.json();
+
+				if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+				return data;
+			} catch (error: any) {
+				throw new Error(error.message);
+			}
+		},
+
+		onSuccess: () => {
+			Promise.all([
+				queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.AUTH_USER] }),
+				queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_PROFILE] }),
+			]);
+		},
+		onError: (error: any) => toast.error(error.message),
+	});
+
+	return { updateProfile, isUpdating };
 };

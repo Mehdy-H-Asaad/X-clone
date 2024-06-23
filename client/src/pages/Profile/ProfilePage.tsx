@@ -10,10 +10,13 @@ import { IoCalendarOutline } from "react-icons/io5";
 import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import {
+	useFollow,
 	useGetUserProfile,
 	useGetUserProfilePosts,
+	useUpdateProfile,
 } from "../../utils/lib/React Query/QueriesAndMutations/UserQueries";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { useAuthUser } from "../../utils/lib/React Query/QueriesAndMutations/AuthQueries";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState<string | null>(null);
@@ -23,12 +26,7 @@ const ProfilePage = () => {
 	const coverImgRef = useRef<HTMLInputElement | null>(null);
 	const profileImgRef = useRef<HTMLInputElement | null>(null);
 
-	const isMyProfile = true;
-
 	const { username } = useParams<{ username: string }>();
-
-	const { isLoading, isRefetching, refetch, user } =
-		useGetUserProfile(username);
 
 	const handleImgChange = (e: ChangeEvent<HTMLInputElement>, state: string) => {
 		const files = e.target.files;
@@ -43,14 +41,33 @@ const ProfilePage = () => {
 		}
 	};
 
-	const { userPosts, refetchUserPosts, isRefetchingPosts, isPending } =
+	const { isLoading, isRefetching, refetch, user } =
+		useGetUserProfile(username);
+
+	const { userPosts, refetchUserPosts, isRefetchingPosts, isGettingPosts } =
 		useGetUserProfilePosts(username);
+
+	const { AuthorizedUser } = useAuthUser();
 
 	useEffect(() => {
 		if (isRefetching || isRefetchingPosts) return;
 		refetch();
 		refetchUserPosts();
 	}, [refetch, username, refetchUserPosts]);
+
+	const isMyProfile = AuthorizedUser?._id == user?._id;
+
+	const { followUnFollow, isPending } = useFollow();
+
+	const userIsFollowed = AuthorizedUser?.following.includes(user?._id);
+
+	const { updateProfile, isUpdating } = useUpdateProfile();
+
+	const handleUpdade = async () => {
+		await updateProfile({ coverImg, profileImg });
+		setProfileImg(null);
+		setCoverImg(null);
+	};
 
 	return (
 		<>
@@ -70,7 +87,7 @@ const ProfilePage = () => {
 								<div className="flex flex-col">
 									<p className="font-bold text-lg">{user?.fullName}</p>
 									<span className="text-sm text-slate-500 flex items-center gap-2">
-										{isPending || isRefetchingPosts ? (
+										{isGettingPosts || isRefetchingPosts ? (
 											<LoadingSpinner size="sm" />
 										) : (
 											userPosts?.length
@@ -131,21 +148,23 @@ const ProfilePage = () => {
 								</div>
 							</div>
 							<div className="flex justify-end px-4 mt-5">
-								{isMyProfile && <EditProfileModal />}
+								{isMyProfile && <EditProfileModal authUser={AuthorizedUser} />}
 								{!isMyProfile && (
 									<button
 										className="btn btn-outline rounded-full btn-sm"
-										onClick={() => alert("Followed successfully")}
+										onClick={() => followUnFollow(user?._id)}
 									>
-										Follow
+										{isPending && <LoadingSpinner size="sm" />}
+										{!isPending && userIsFollowed && "Unfollow"}
+										{!isPending && !userIsFollowed && "Follow"}
 									</button>
 								)}
 								{(coverImg || profileImg) && (
 									<button
 										className="btn btn-primary rounded-full btn-sm text-white px-4 ml-2"
-										onClick={() => alert("Profile updated successfully")}
+										onClick={handleUpdade}
 									>
-										Update
+										{isUpdating ? <LoadingSpinner size="sm" /> : "Update"}
 									</button>
 								)}
 							</div>

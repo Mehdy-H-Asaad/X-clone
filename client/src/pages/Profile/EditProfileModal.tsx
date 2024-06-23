@@ -1,8 +1,15 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
+import { UserProps, editProfileProps } from "../../types/Types";
+import { useUpdateProfile } from "../../utils/lib/React Query/QueriesAndMutations/UserQueries";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
-const EditProfileModal = () => {
-	const [formData, setFormData] = useState({
-		fullName: "",
+const EditProfileModal = ({
+	authUser,
+}: {
+	authUser: UserProps | undefined;
+}) => {
+	const [formData, setFormData] = useState<editProfileProps>({
+		fullname: "",
 		username: "",
 		email: "",
 		bio: "",
@@ -25,6 +32,23 @@ const EditProfileModal = () => {
 			modal.showModal();
 		}
 	};
+
+	const { updateProfile, isUpdating } = useUpdateProfile();
+
+	useEffect(() => {
+		if (authUser) {
+			setFormData({
+				fullname: authUser.fullname,
+				bio: authUser.bio,
+				email: authUser.email,
+				link: authUser.link,
+				username: authUser.username,
+				currentPassword: "",
+				newPassword: "",
+			});
+		}
+	}, []);
+
 	return (
 		<>
 			<button
@@ -35,12 +59,14 @@ const EditProfileModal = () => {
 			</button>
 			<dialog id="edit_profile_modal" className="modal">
 				<div className="modal-box border rounded-md border-gray-700 shadow-md">
-					<h3 className="font-bold text-lg my-3">Update Profile</h3>
+					<h3 className="font-bold text-lg my-3">
+						{isUpdating ? <LoadingSpinner size="sm" /> : "Update profile"}
+					</h3>
 					<form
 						className="flex flex-col gap-4"
 						onSubmit={e => {
 							e.preventDefault();
-							alert("Profile updated successfully");
+							updateProfile(formData);
 						}}
 					>
 						<div className="flex flex-wrap gap-2">
@@ -48,8 +74,8 @@ const EditProfileModal = () => {
 								type="text"
 								placeholder="Full Name"
 								className="flex-1 input border border-gray-700 rounded p-2 input-md"
-								value={formData.fullName}
-								name="fullName"
+								value={formData.fullname}
+								name="fullname"
 								onChange={handleInputChange}
 							/>
 							<input

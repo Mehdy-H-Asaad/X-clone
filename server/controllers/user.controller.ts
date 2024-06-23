@@ -133,7 +133,7 @@ export const updateUser = async (req: REQUEST, res: RESPONSE) => {
 		if (profileImg) {
 			if (user.profileImg)
 				await cloudinary.uploader.destroy(
-					user.coverImg.split("/").pop()!.split(".")[0]
+					user.profileImg.split("/").pop()!.split(".")[0]
 				); // Get id image to destroy
 
 			const uploadedResponse = await cloudinary.uploader.upload(profileImg);
@@ -161,8 +161,8 @@ export const updateUser = async (req: REQUEST, res: RESPONSE) => {
 		await user.save();
 		user = await User.findById(reqUserId).select("-password");
 		return res.status(200).json({ message: "User updated successfully", user });
-	} catch (error) {
-		console.log("Error in the updateUser controller", error);
+	} catch (error: any) {
+		console.log("Error in the updateUser controller", error.message);
 		return res.status(500).json({ error: "Internal Server Error" });
 	}
 };
