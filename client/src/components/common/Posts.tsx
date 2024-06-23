@@ -9,8 +9,8 @@ const Posts = ({
 	userId,
 }: {
 	feedType: string;
-	username: string | undefined;
-	userId: string;
+	username?: string | undefined;
+	userId?: string;
 }) => {
 	const getPostsEndPoint = () => {
 		switch (feedType) {

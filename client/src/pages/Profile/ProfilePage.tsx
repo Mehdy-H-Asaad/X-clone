@@ -17,6 +17,7 @@ import {
 } from "../../utils/lib/React Query/QueriesAndMutations/UserQueries";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { useAuthUser } from "../../utils/lib/React Query/QueriesAndMutations/AuthQueries";
+import { formatMemberSinceDate } from "../../utils/lib/date";
 
 const ProfilePage = () => {
 	const [coverImg, setCoverImg] = useState<string | null>(null);
@@ -49,6 +50,7 @@ const ProfilePage = () => {
 
 	const { AuthorizedUser } = useAuthUser();
 
+	const memeberSince = formatMemberSinceDate(user?.createdAt);
 	useEffect(() => {
 		if (isRefetching || isRefetchingPosts) return;
 		refetch();
@@ -201,7 +203,7 @@ const ProfilePage = () => {
 											<IoCalendarOutline size={16} />
 										</div>
 										<span className="text-sm text-slate-500">
-											Joined July 2021
+											{memeberSince}
 										</span>
 									</div>
 								</div>
