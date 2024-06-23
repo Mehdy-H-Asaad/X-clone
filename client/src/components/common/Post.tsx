@@ -185,14 +185,14 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 									<button className="outline-none">close</button>
 								</form>
 							</dialog>
-							<div className="flex gap-1 items-center group cursor-pointer">
+							{/* <div className="flex gap-1 items-center group cursor-pointer">
 								<div className="w-6 h-6 text-slate-500 group-hover:text-green-500">
 									<BiRepost size={26} />
 								</div>
 								<span className="text-sm text-slate-500 group-hover:text-green-500">
 									0
 								</span>
-							</div>
+							</div> */}
 							<div
 								className="flex gap-1 items-center group cursor-pointer"
 								onClick={handleLikePost}
