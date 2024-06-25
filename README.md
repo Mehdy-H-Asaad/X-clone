@@ -9,11 +9,13 @@ Some Features:
 ✍️ Creating Posts\
 🗑️ Deleting Posts\
 💬 Commenting on Posts\
-❤️ Liking Posts
-🔒 Delete Posts (if you are the owner)
-📝 Edit Profile Info
-🖼️ Edit Cover Image and Profile Image
-📷 Image Uploads using Cloudinary
-🔔 Send Notifications
-🌐 Deployment
-⏳ And much more!
+❤️ Liking Posts\
+🔒 Delete Posts (if you are the owner)\
+📝 Edit Profile Info\
+🖼️ Edit Cover Image and Profile Image\
+📷 Image Uploads using Cloudinary\
+🔔 Send Notifications\
+🌐 Deployment\
+⏳ And much more!\
+
+![alt text](<./client/public/Screenshot%20(830).png>)
