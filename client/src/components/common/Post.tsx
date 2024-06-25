@@ -1,5 +1,4 @@
 import { FaRegComment } from "react-icons/fa";
-import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
@@ -36,7 +35,7 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 	const postOwner = post.user;
 	const isLiked = post.likes.includes(AuthorizedUser?._id as string);
 
-	const isMyPost = AuthorizedUser?._id === post.user._id;
+	const isMyPost = AuthorizedUser?._id === post.user?._id;
 
 	const formattedDate = formatPostDate(post.createdAt);
 
@@ -70,20 +69,20 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 			<div className="flex gap-2 items-start p-4 border-b border-gray-700">
 				<div className="avatar">
 					<Link
-						to={`/profile/${postOwner.username}`}
-						className="w-8 rounded-full overflow-hidden"
+						to={`/profile/${postOwner?.username}`}
+						className="size-8 rounded-[50%] overflow-hidden"
 					>
-						<img src={postOwner.profileImg || "/avatar-placeholder.png"} />
+						<img src={postOwner?.profileImg || "/avatar-placeholder.png"} />
 					</Link>
 				</div>
 				<div className="flex flex-col flex-1">
 					<div className="flex gap-2 items-center">
-						<Link to={`/profile/${postOwner.username}`} className="font-bold">
-							{postOwner.fullName}
+						<Link to={`/profile/${postOwner?.username}`} className="font-bold">
+							{postOwner?.fullName}
 						</Link>
 						<span className="text-gray-700 flex gap-1 text-sm">
-							<Link to={`/profile/${postOwner.username}`}>
-								@{postOwner.username}
+							<Link to={`/profile/${postOwner?.username}`}>
+								@{postOwner?.username}
 							</Link>
 							<span>·</span>
 							<span>{formattedDate}</span>
@@ -136,31 +135,36 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 												No comments yet 🤔 Be the first one 😉
 											</p>
 										)}
-										{post.comments.map((comment: CommentProps) => (
-											<div key={comment._id} className="flex gap-2 items-start">
-												<div className="avatar">
-													<div className="w-8 rounded-full">
-														<img
-															src={
-																comment.user.profileImg ||
-																"/avatar-placeholder.png"
-															}
-														/>
+										{AuthorizedUser &&
+											post.comments.map((comment: CommentProps) => (
+												<div
+													key={comment?._id}
+													className="flex gap-2 items-start"
+												>
+													<div className="avatar">
+														<div className="w-8 rounded-full">
+															<img
+																src={
+																	comment.user?.profileImg ||
+																	"/avatar-placeholder.png"
+																}
+																className="size-14"
+															/>
+														</div>
+													</div>
+													<div className="flex flex-col">
+														<div className="flex items-center gap-1">
+															<span className="font-bold">
+																{comment.user?.fullname}
+															</span>
+															<span className="text-gray-700 text-sm">
+																@{comment.user?.username}
+															</span>
+														</div>
+														<div className="text-sm">{comment.text}</div>
 													</div>
 												</div>
-												<div className="flex flex-col">
-													<div className="flex items-center gap-1">
-														<span className="font-bold">
-															{comment.user.fullname}
-														</span>
-														<span className="text-gray-700 text-sm">
-															@{comment.user.username}
-														</span>
-													</div>
-													<div className="text-sm">{comment.text}</div>
-												</div>
-											</div>
-										))}
+											))}
 									</div>
 									<form
 										className="flex gap-2 items-center mt-4 border-t border-gray-600 pt-2"
@@ -185,14 +189,6 @@ const Post = ({ post, feedType }: { post: PostProps; feedType: string }) => {
 									<button className="outline-none">close</button>
 								</form>
 							</dialog>
-							{/* <div className="flex gap-1 items-center group cursor-pointer">
-								<div className="w-6 h-6 text-slate-500 group-hover:text-green-500">
-									<BiRepost size={26} />
-								</div>
-								<span className="text-sm text-slate-500 group-hover:text-green-500">
-									0
-								</span>
-							</div> */}
 							<div
 								className="flex gap-1 items-center group cursor-pointer"
 								onClick={handleLikePost}

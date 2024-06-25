@@ -8,6 +8,8 @@ import connectToMongo from "./db/connectToMongo";
 import cookieParser from "cookie-parser";
 
 import { v2 as cloudinary } from "cloudinary";
+import path from "path";
+import { REQUEST, RESPONSE } from "./types/expressTypes";
 
 dotenv.config();
 
@@ -27,6 +29,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postroutes);
 app.use("/api/notifications", notificationRoutes);
+
+if (process.env.NODE_ENV == "production") {
+	app.use(express.static(path.join(path.resolve(), "client/dist")));
+
+	app.get("*", (_req: REQUEST, res: RESPONSE) => {
+		res.sendFile(path.resolve(path.resolve(), "client/dist/index.html"));
+	});
+}
 
 app.listen(PORT, () => {
 	console.log(`Listening on port ${PORT}`);

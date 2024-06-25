@@ -8,7 +8,12 @@ import toast from "react-hot-toast";
 import { QUERY_KEYS } from "../QueryKeys";
 
 export const useSuggestedUsers = () => {
-	const { data: suggestedUsers, isLoading } = useQuery<UserProps[]>({
+	const {
+		data: suggestedUsers,
+		isLoading,
+		refetch,
+		isRefetching,
+	} = useQuery<UserProps[]>({
 		queryKey: [QUERY_KEYS.SUGGESTED_USERS],
 		queryFn: async () => {
 			try {
@@ -22,7 +27,7 @@ export const useSuggestedUsers = () => {
 			}
 		},
 	});
-	return { suggestedUsers, isLoading };
+	return { suggestedUsers, isLoading, refetch, isRefetching };
 };
 
 export const useFollow = () => {
@@ -43,8 +48,6 @@ export const useFollow = () => {
 		},
 
 		onSuccess: () => {
-			toast.success("followed");
-
 			Promise.all([
 				queryClient.invalidateQueries({
 					queryKey: [QUERY_KEYS.SUGGESTED_USERS],

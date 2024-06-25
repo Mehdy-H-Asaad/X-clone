@@ -51,11 +51,13 @@ const ProfilePage = () => {
 	const { AuthorizedUser } = useAuthUser();
 
 	const memeberSince = formatMemberSinceDate(user?.createdAt);
+
 	useEffect(() => {
-		if (isRefetching || isRefetchingPosts) return;
+		if (isRefetching) return;
+		if (isRefetchingPosts) return;
 		refetch();
 		refetchUserPosts();
-	}, [refetch, username, refetchUserPosts]);
+	}, [refetch, username]);
 
 	const isMyProfile = AuthorizedUser?._id == user?._id;
 
@@ -128,7 +130,7 @@ const ProfilePage = () => {
 								/>
 								{/* USER AVATAR */}
 								<div className="avatar absolute -bottom-16 left-4">
-									<div className="w-32 rounded-full relative group/avatar">
+									<div className="w-32 rounded-[50%] relative group/avatar">
 										<img
 											src={
 												profileImg ||
@@ -193,7 +195,7 @@ const ProfilePage = () => {
 													rel="noreferrer"
 													className="text-sm text-blue-500 hover:underline"
 												>
-													youtube.com/@asaprogrammer_
+													{user?.link}
 												</a>
 											</>
 										</div>

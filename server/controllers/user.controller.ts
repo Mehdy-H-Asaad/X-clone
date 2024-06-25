@@ -146,7 +146,7 @@ export const updateUser = async (req: REQUEST, res: RESPONSE) => {
 					user.coverImg.split("/").pop()!.split(".")[0]
 				); // Get id image to destroy
 
-			const uploadedResponse = await cloudinary.uploader.upload(profileImg);
+			const uploadedResponse = await cloudinary.uploader.upload(coverImg);
 			coverImg = uploadedResponse.secure_url;
 		}
 

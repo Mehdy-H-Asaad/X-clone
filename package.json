@@ -4,8 +4,9 @@
   "description": "",
   "main": "server/server.ts",
   "scripts": {
-    "dev": "nodemon server/server.ts",
-    "start": "node server/server.ts"
+    "dev": "cross-env NODE_ENV=development nodemon --watch server --exec ts-node server/server.ts",
+    "build": "tsc && npm install && npm install --prefix client && npm run build --prefix client",
+    "start": "cross-env NODE_ENV=production node server/dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,7 @@
     "cloudinary": "^2.2.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",

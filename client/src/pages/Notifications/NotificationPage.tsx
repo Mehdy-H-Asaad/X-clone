@@ -59,12 +59,12 @@ const NotificationPage = () => {
 									<FaHeart size={28} />
 								</div>
 							)}
-							<Link to={`/profile/${notification.sender.username}`}>
+							<Link to={`/profile/${notification.sender?.username}`}>
 								<div className="avatar">
 									<div className="w-8 rounded-full">
 										<img
 											src={
-												notification.reciver.profileImg ||
+												notification.reciver?.profileImg ||
 												"/avatar-placeholder.png"
 											}
 										/>
@@ -72,7 +72,7 @@ const NotificationPage = () => {
 								</div>
 								<div className="flex gap-1">
 									<span className="font-bold">
-										@{notification.sender.username}
+										@{notification.sender?.username}
 									</span>{" "}
 									{notification.type === "follow"
 										? "followed you"

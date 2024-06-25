@@ -1,5 +1,4 @@
 import { CiImageOn } from "react-icons/ci";
-import { BsEmojiSmileFill } from "react-icons/bs";
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
 import { useCreatePost } from "../../utils/lib/React Query/QueriesAndMutations/PostQueries";
@@ -77,9 +76,6 @@ const CreatePost = () => {
 							onClick={() => imgRef.current?.click()}
 						>
 							<CiImageOn size={24} />
-						</div>
-						<div className="fill-primary w-5 h-5 cursor-pointer text-blue-400">
-							<BsEmojiSmileFill size={20} />
 						</div>
 					</div>
 					<input type="file" hidden ref={imgRef} onChange={handleImgChange} />
