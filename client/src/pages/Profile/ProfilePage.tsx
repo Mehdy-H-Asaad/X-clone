@@ -190,7 +190,7 @@ const ProfilePage = () => {
 													<FaLink size={12} />
 												</div>
 												<a
-													href="https://youtube.com/@asaprogrammer_"
+													href={user?.link}
 													target="_blank"
 													rel="noreferrer"
 													className="text-sm text-blue-500 hover:underline"
